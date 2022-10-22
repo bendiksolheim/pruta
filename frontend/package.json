@@ -1,0 +1,37 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -r dist",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "overrides": {
+    "ansi-to-react": {
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0"
+    }
+  },
+  "dependencies": {
+    "ansi-to-react": "^6.1.6",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.5.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.1.0",
+    "typescript": "^4.8.4",
+    "vite": "^3.1.8"
+  }
+}
