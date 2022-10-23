@@ -1,8 +1,8 @@
-package bendik.dev
+package dev.bendik
 
-import bendik.dev.models.Container
-import bendik.dev.models.Image
-import bendik.dev.models.ContainerDetails
+import dev.bendik.models.Container
+import dev.bendik.models.Image
+import dev.bendik.models.ContainerDetails
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.async.ResultCallback
 import io.ktor.server.application.Application

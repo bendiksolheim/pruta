@@ -1,4 +1,4 @@
-package bendik.dev.models
+package dev.bendik.models
 
 import kotlinx.serialization.Serializable
 import com.github.dockerjava.api.model.Image as DockerImage

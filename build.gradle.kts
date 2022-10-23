@@ -11,7 +11,7 @@ plugins {
     id("com.bmuschko.docker-java-application") version "8.1.0"
 }
 
-group = "bendik.dev"
+group = "dev.bendik"
 version = "0.0.1"
 application {
     mainClass.set("io.ktor.server.cio.EngineMain")

@@ -1,9 +1,13 @@
-package bendik.dev
+package dev.bendik
 
 import io.ktor.server.application.*
-import bendik.dev.plugins.*
+import dev.bendik.plugins.*
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
+import dev.bendik.plugins.configureHTTP
+import dev.bendik.plugins.configureMonitoring
+import dev.bendik.plugins.configureRouting
+import dev.bendik.plugins.configureSerialization
 import io.ktor.server.http.content.singlePageApplication
 import io.ktor.server.routing.routing
 

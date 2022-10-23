@@ -1,4 +1,4 @@
-package bendik.dev.plugins
+package dev.bendik.plugins
 
 import io.ktor.http.*
 import io.ktor.server.plugins.statuspages.*
