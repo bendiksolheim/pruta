@@ -55,9 +55,18 @@ tasks.named("processResources") {
     dependsOn(processFrontendResources)
 }
 
+val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: ""
+val dockerAccessToken: String = System.getenv("DOCKER_ACCESS_TOKEN") ?: ""
+
 docker {
+    registryCredentials {
+        username.set(dockerUsername)
+        password.set(dockerAccessToken)
+    }
+
     javaApplication {
         maintainer.set("Bendik Solheim, 'hello@bendik.dev'")
         ports.set(listOf(8080))
+        images.addAll("bendiksolheim/pruta:latest")
     }
 }
