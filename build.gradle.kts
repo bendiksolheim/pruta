@@ -57,6 +57,7 @@ tasks.named("processResources") {
 
 val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: ""
 val dockerAccessToken: String = System.getenv("DOCKER_ACCESS_TOKEN") ?: ""
+val dockerVersion: String = System.getenv("VERSION") ?: "$version"
 
 docker {
     registryCredentials {
@@ -67,6 +68,6 @@ docker {
     javaApplication {
         maintainer.set("Bendik Solheim, 'hello@bendik.dev'")
         ports.set(listOf(8080))
-        images.addAll("bendiksolheim/pruta:latest")
+        images.addAll("bendiksolheim/pruta:latest", "bendiksolheim/pruta:$dockerVersion")
     }
 }

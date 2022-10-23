@@ -18,5 +18,6 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          VERSION: ${{ github.run_number }}
         with:
           arguments: dockerPushImage
