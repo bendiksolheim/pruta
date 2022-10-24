@@ -9,6 +9,7 @@ export function Images(): JSX.Element {
   const [images, setImages] = useState<Array<DockerImage>>();
 
   useEffect(() => {
+    console.log("lol?");
     fetch("/api/images")
       .then((res) => res.json())
       .then((images) => setImages(images));
@@ -19,15 +20,16 @@ export function Images(): JSX.Element {
   }
 
   const rows = images.map((image) => [
-    { value: image.id },
     { value: image.repo },
+    { value: image.tags },
+    { value: image.id },
     { value: humanReadableSize(image.size), className: "text-end" },
   ]);
 
   const footer = (
     <tfoot>
       <tr>
-        <td colSpan={3} className="text-end">
+        <td colSpan={4} className="text-end">
           {humanReadableSize(images.reduce((prev, cur) => prev + cur.size, 0))}
         </td>
       </tr>
@@ -40,7 +42,11 @@ export function Images(): JSX.Element {
       <Card>
         <Card.Body>
           <Card.Title>Images</Card.Title>
-          <Table headers={["ID", "Repo", "Size"]} rows={rows} footer={footer} />
+          <Table
+            headers={["Repo", "Tags", "ID", "Size"]}
+            rows={rows}
+            footer={footer}
+          />
         </Card.Body>
       </Card>
     </>
