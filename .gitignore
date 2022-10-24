@@ -30,3 +30,7 @@ out/
 frontend/dist
 frontend/node_modules
 node
+src/main/resources/www/**/*.js
+src/main/resources/www/**/*.css
+src/main/resources/www/**/*.html
+src/main/resources/www/**/*.svg
