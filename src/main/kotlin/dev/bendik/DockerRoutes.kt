@@ -1,5 +1,7 @@
 package dev.bendik
 
+import arrow.core.Either
+import arrow.core.zip
 import dev.bendik.models.Container
 import dev.bendik.models.Image
 import dev.bendik.models.ContainerDetails
@@ -11,40 +13,62 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import com.github.dockerjava.api.model.Frame
+import io.ktor.http.HttpStatusCode
 import java.util.concurrent.TimeUnit
 
 fun Application.dockerRoutes(dockerClient: DockerClient) {
     routing {
         get("api/containers") {
-            val containers = when (call.parameters["filter"]) {
-                "running" -> dockerClient.listContainersCmd().exec()
-                "exited" -> dockerClient.listContainersCmd().withShowAll(true).exec().filter { it.state == "exited" }
-                else -> dockerClient.listContainersCmd().withShowAll(true).exec()
+            val containers = Either.catch {
+                when (call.parameters["filter"]) {
+                    "running" -> dockerClient.listContainersCmd().exec()
+                    "exited" -> dockerClient.listContainersCmd().withShowAll(true).exec()
+                        .filter { it.state == "exited" }
+
+                    else -> dockerClient.listContainersCmd().withShowAll(true).exec()
+                }
             }
-            call.respond(containers.map { Container.from(it) })
+            containers.fold(
+                { call.respond(HttpStatusCode.InternalServerError) },
+                { containers -> call.respond(containers.map { Container.from(it) }) }
+            )
         }
 
         get("api/images") {
-            val images = dockerClient.listImagesCmd().exec()
-            call.respond(images.map { Image.from(it) })
+            val images = Either.catch { dockerClient.listImagesCmd().exec() }
+            images.fold(
+                { call.respond(HttpStatusCode.InternalServerError) },
+                { images -> call.respond(images.map { image -> Image.from(image) }) }
+            )
         }
 
-        get("api/log/{id}") {
+        get("api/containers/{id}") {
             val id = call.parameters["id"] as String
-            val container = dockerClient.inspectContainerCmd(id).exec()
+            val container = Either.catch { dockerClient.inspectContainerCmd(id).exec() }
             val buffer = StringBuffer()
             val callback: ResultCallback.Adapter<Frame> = object : ResultCallback.Adapter<Frame>() {
                 override fun onNext(frame: Frame) {
                     buffer.append(String(frame.payload))
                 }
             }
-            dockerClient.logContainerCmd(id)
-                .withStdOut(true)
-                .withStdErr(true)
-                .exec(callback)
-                .awaitCompletion(5, TimeUnit.SECONDS)
+            val logSuccess = Either.catch {
+                dockerClient.logContainerCmd(id)
+                    .withStdOut(true)
+                    .withStdErr(true)
+                    .exec(callback)
+                    .awaitCompletion(5, TimeUnit.SECONDS)
+            }
 
-            call.respond(ContainerDetails.from(container, buffer.toString()))
+            container.zip(logSuccess).fold(
+                { call.respond(HttpStatusCode.NotFound) },
+                {
+                    if (it.second) {
+                        call.respond(ContainerDetails.from(it.first, buffer.toString()))
+                    } else {
+                        call.respond(ContainerDetails.from(it.first, "Log not available"))
+                    }
+                }
+            )
         }
     }
 }

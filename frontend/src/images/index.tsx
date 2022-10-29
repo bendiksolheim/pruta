@@ -1,24 +1,26 @@
 /* import Table from "react-bootstrap/Table"; */
-import { useEffect, useState } from "react";
 import { DockerImage } from "./image";
 import Card from "react-bootstrap/Card";
 import Navbar from "react-bootstrap/Navbar";
 import { Table } from "../components/table";
+import useFetch from "../use-fetch";
+import Page from "../components/page";
+import Error from "../components/error";
 
 export function Images(): JSX.Element {
-  const [images, setImages] = useState<Array<DockerImage>>();
+  return useFetch(
+    "/api/images",
+    () => <Page>Loading...</Page>,
+    () => (
+      <Page>
+        <Error>Could not fetch images</Error>
+      </Page>
+    ),
+    images
+  );
+}
 
-  useEffect(() => {
-    console.log("lol?");
-    fetch("/api/images")
-      .then((res) => res.json())
-      .then((images) => setImages(images));
-  }, []);
-
-  if (!images) {
-    return <div>Loading...</div>;
-  }
-
+function images(images: Array<DockerImage>): JSX.Element {
   const rows = images.map((image) => [
     { value: image.repo },
     { value: image.tags },
@@ -52,33 +54,6 @@ export function Images(): JSX.Element {
     </>
   );
 }
-/*
-          <Table hover bordered>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Repo</th>
-                <th>Size</th>
-              </tr>
-            </thead>
-            <tbody>
-              {images.map((image) => (
-                <tr>
-                  <td>{image.id}</td>
-                  <td>{image.repo}</td>
-                  <td className="text-end">{humanReadableSize(image.size)}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <td colSpan={3} className="text-end">
-                {humanReadableSize(
-                  images.reduce((prev, cur) => prev + cur.size, 0)
-                )}
-              </td>
-            </tfoot>
-          </Table>
- */
 
 function humanReadableSize(size: number): string {
   const mb = size / 1_000_000;

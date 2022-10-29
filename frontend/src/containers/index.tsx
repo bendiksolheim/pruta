@@ -3,30 +3,45 @@ import { Table } from "../components/table";
 import Card from "react-bootstrap/Card";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FormCheck from "react-bootstrap/FormCheck";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DockerContainer } from "./container";
 import { Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import useFetch from "../use-fetch";
+import Page from "../components/page";
+import Error from "../components/error";
 
 const stateValues = ["running", "exited", "all"] as const;
 
 type ContainerState = typeof stateValues[number];
 
 export function Containers(): JSX.Element {
-  const [containers, setContainers] = useState<Array<DockerContainer>>();
   const [selected, setSelected] = useState<ContainerState>("running");
 
-  useEffect(() => {
-    fetch(`/api/containers?filter=${selected}`)
-      .then((res) => res.json())
-      .then((containers) => setContainers(containers));
-  }, [selected]);
+  return useFetch<Array<DockerContainer>>(
+    `/api/containers?filter=${selected}`,
+    () => <Page>Loading...</Page>,
+    () => (
+      <Page>
+        <Error>Some error occured fetching containers</Error>
+      </Page>
+    ),
+    (containers) => (
+      <ContainersSuccess
+        containers={containers}
+        selected={selected}
+        setSelected={setSelected}
+      />
+    )
+  );
+}
 
-  if (!containers) {
-    return <div>Loading...</div>;
-  }
-
-  const rows = containers.map((container) => [
+function ContainersSuccess(props: {
+  containers: Array<DockerContainer>;
+  selected: ContainerState;
+  setSelected: (s: ContainerState) => void;
+}): JSX.Element {
+  const rows = props.containers.map((container) => [
     {
       value: (
         <Link to={`/container/${container.id}`}>
@@ -52,15 +67,15 @@ export function Containers(): JSX.Element {
                 <FormCheck.Input
                   type="radio"
                   className="btn-check"
-                  checked={statusValue == selected}
+                  checked={statusValue == props.selected}
                   onChange={() => {
                     console.log("hmm");
-                    setSelected(statusValue);
+                    props.setSelected(statusValue);
                   }}
                 />
                 <FormCheck.Label
                   className="btn btn-outline-primary"
-                  onClick={() => setSelected(statusValue)}
+                  onClick={() => props.setSelected(statusValue)}
                 >
                   {capitalize(statusValue)}
                 </FormCheck.Label>

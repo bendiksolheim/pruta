@@ -6,24 +6,32 @@ import { ContainerDetails } from "./container-details";
 import Ansi from "ansi-to-react";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import useFetch from "../use-fetch";
+import Error from "../components/error";
+import Page from "../components/page";
 
 export function Container(): JSX.Element {
   const { id } = useParams();
-  const [container, setContainer] = useState<ContainerDetails>();
 
-  useEffect(() => {
-    fetch(`/api/log/${id}`)
-      .then((res) => res.json())
-      .then((container) => setContainer(container));
-  }, [id]);
+  return useFetch<ContainerDetails>(
+    `/api/containers/${id}`,
+    () => (
+      <Page>
+        <div>Loading...</div>
+      </Page>
+    ),
+    () => (
+      <Page>
+        <Error>Container {id} does not exist</Error>
+      </Page>
+    ),
+    containerDetails
+  );
+}
 
-  if (!container) {
-    return <div>Loading...</div>;
-  }
-
+function containerDetails(container: ContainerDetails): JSX.Element {
   return (
-    <>
-      <Navbar></Navbar>
+    <Page>
       <Card>
         <Card.Body>
           <Card.Title>
@@ -52,6 +60,6 @@ export function Container(): JSX.Element {
           </Row>
         </Card.Body>
       </Card>
-    </>
+    </Page>
   );
 }
