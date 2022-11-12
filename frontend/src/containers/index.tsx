@@ -69,7 +69,6 @@ function ContainersSuccess(props: {
                   className="btn-check"
                   checked={statusValue == props.selected}
                   onChange={() => {
-                    console.log("hmm");
                     props.setSelected(statusValue);
                   }}
                 />
