@@ -14,6 +14,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import com.github.dockerjava.api.model.Frame
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.server.routing.post
 import java.util.concurrent.TimeUnit
 
 fun Application.dockerRoutes(dockerClient: DockerClient) {
@@ -29,7 +32,7 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
                 }
             }
             containers.fold(
-                { call.respond(HttpStatusCode.InternalServerError) },
+                { call.respond(InternalServerError) },
                 { containers -> call.respond(containers.map { Container.from(it) }) }
             )
         }
@@ -37,7 +40,7 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
         get("api/images") {
             val images = Either.catch { dockerClient.listImagesCmd().exec() }
             images.fold(
-                { call.respond(HttpStatusCode.InternalServerError) },
+                { call.respond(InternalServerError) },
                 { images -> call.respond(images.map { image -> Image.from(image) }) }
             )
         }
@@ -69,6 +72,20 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
                     }
                 }
             )
+        }
+
+        post("/api/containers/{id}/stop") {
+            val id = call.parameters["id"] as String
+            val result = Either.catch { dockerClient.stopContainerCmd(id).exec() }
+
+            result.fold( { call.respond(InternalServerError) }, { call.respond(OK) })
+        }
+
+        post("/api/containers/{id}/start") {
+            val id = call.parameters["id"] as String
+            val result = Either.catch { dockerClient.startContainerCmd(id).exec() }
+
+            result.fold( { call.respond(InternalServerError) }, { call.respond(OK)})
         }
     }
 }
