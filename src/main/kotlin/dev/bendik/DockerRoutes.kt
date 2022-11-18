@@ -56,6 +56,7 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
             }
             val logSuccess = Either.catch {
                 dockerClient.logContainerCmd(id)
+                    .withTail(1000)
                     .withStdOut(true)
                     .withStdErr(true)
                     .exec(callback)
