@@ -13,6 +13,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import com.github.dockerjava.api.model.Frame
+import dev.bendik.models.Network
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.OK
@@ -72,6 +73,14 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
                         call.respond(ContainerDetails.from(it.first, "Log not available"))
                     }
                 }
+            )
+        }
+
+        get("/api/networks") {
+            val networks = Either.catch { dockerClient.listNetworksCmd().exec() }
+            networks.fold(
+                { t -> call.respond(InternalServerError, t)},
+                { networks -> call.respond(networks.map { Network.from(it) }) }
             )
         }
 

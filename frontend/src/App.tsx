@@ -5,6 +5,7 @@ import { Containers } from "./containers";
 import { Images } from "./images";
 import { Root } from "./Root";
 import "./app.css";
+import { Networks } from "./networks";
 
 const routes = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const routes = createBrowserRouter([
       {
         path: "/images",
         element: <Images />,
+      },
+      {
+        path: "/networks",
+        element: <Networks />,
       },
     ],
   },

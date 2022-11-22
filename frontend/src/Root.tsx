@@ -23,6 +23,7 @@ export function Root(): JSX.Element {
               Containers
             </NavigationLink>
             <NavigationLink to="/images">Images</NavigationLink>
+            <NavigationLink to="/networks">Networks</NavigationLink>
           </Nav>
         </div>
       </div>
