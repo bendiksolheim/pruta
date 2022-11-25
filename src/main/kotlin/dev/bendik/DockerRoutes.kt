@@ -15,8 +15,11 @@ import io.ktor.server.routing.routing
 import com.github.dockerjava.api.model.Frame
 import dev.bendik.models.Network
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
 import java.util.concurrent.TimeUnit
 
@@ -43,6 +46,15 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
             images.fold(
                 { call.respond(InternalServerError) },
                 { images -> call.respond(images.map { image -> Image.from(image) }) }
+            )
+        }
+
+        delete("/api/images/{id}") {
+            val id = call.parameters["id"] as String
+            val deleted = Either.catch { dockerClient.removeImageCmd(id).exec() }
+            deleted.fold(
+                { call.respond(BadRequest) },
+                { call.respond(NoContent) }
             )
         }
 

@@ -6,6 +6,9 @@ import { Table } from "../components/table";
 import useFetch from "../use-fetch";
 import Page from "../components/page";
 import Error from "../components/error";
+import { SmallButton } from "../components/small-button";
+import Delete from "../icons/delete";
+import { mutate } from "swr";
 
 export function Images(): JSX.Element {
   return useFetch(
@@ -21,10 +24,21 @@ export function Images(): JSX.Element {
 }
 
 function images(images: Array<DockerImage>): JSX.Element {
+  const deleteImage = (id: string) => () => {
+    fetch(`/api/images/${id}`, { method: "DELETE" }).then(() => {
+      mutate("/api/images");
+    });
+  };
   const rows = images.map((image) => [
+    {
+      value: (
+        <SmallButton onClick={deleteImage(image.id)}>
+          <Delete />
+        </SmallButton>
+      ),
+    },
     { value: image.repo },
     { value: image.tags },
-    { value: image.id },
     { value: humanReadableSize(image.size), className: "text-end" },
   ]);
 
@@ -45,7 +59,7 @@ function images(images: Array<DockerImage>): JSX.Element {
         <Card.Body>
           <Card.Title>Images</Card.Title>
           <Table
-            headers={["Repo", "Tags", "ID", "Size"]}
+            headers={["", "Repo", "Tags", "Size"]}
             rows={rows}
             footer={footer}
           />
