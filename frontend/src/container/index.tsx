@@ -1,5 +1,5 @@
 import Card from "react-bootstrap/Card";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ContainerDetails } from "./container-details";
 import Ansi from "ansi-to-react";
 import Col from "react-bootstrap/Col";
@@ -9,10 +9,13 @@ import Error from "../components/error";
 import Page from "../components/page";
 import Stop from "../icons/stop";
 import Play from "../icons/play";
-import { mutate, useSWRConfig } from "swr";
+import { mutate } from "swr";
+import { SmallButton } from "../components/small-button";
+import Delete from "../icons/delete";
 
 export function Container(): JSX.Element {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   return useFetch<ContainerDetails>(
     `/api/containers/${id}`,
@@ -26,11 +29,15 @@ export function Container(): JSX.Element {
         <Error>Container {id} does not exist</Error>
       </Page>
     ),
-    containerDetails
+    (details) => <Details container={details} navigate={navigate} />
   );
 }
 
-function containerDetails(container: ContainerDetails): JSX.Element {
+function Details(props: {
+  container: ContainerDetails;
+  navigate: ReturnType<typeof useNavigate>;
+}): JSX.Element {
+  const container = props.container;
   function stopContainer() {
     fetch(`/api/containers/${container.id}/stop`, { method: "POST" }).then(
       () => {
@@ -47,6 +54,16 @@ function containerDetails(container: ContainerDetails): JSX.Element {
     );
   }
 
+  function deleteContainer() {
+    fetch(`/api/containers/${container.id}`, { method: "DELETE" }).then(
+      (res) => {
+        if (res.ok) {
+          props.navigate("/");
+        }
+      }
+    );
+  }
+
   return (
     <Page>
       <Card>
@@ -55,11 +72,16 @@ function containerDetails(container: ContainerDetails): JSX.Element {
             <span className="align-middle">
               {removeFirstSlash(container.name)} ({container.state})
             </span>
-            <Button
+            <SmallButton
               onClick={container.running ? stopContainer : startContainer}
             >
               {container.running ? <Stop /> : <Play />}
-            </Button>
+            </SmallButton>
+            {!container.running ? (
+              <SmallButton onClick={deleteContainer}>
+                <Delete />
+              </SmallButton>
+            ) : null}
           </Card.Title>
           <Row style={{ marginBottom: "0.875rem" }}>
             <Col>
@@ -97,20 +119,6 @@ function containerDetails(container: ContainerDetails): JSX.Element {
         </Card.Body>
       </Card>
     </Page>
-  );
-}
-
-function Button(
-  props: React.PropsWithChildren & { onClick: () => void }
-): JSX.Element {
-  return (
-    <button
-      type="button"
-      className="btn btn-sm px-1 py-0"
-      onClick={props.onClick}
-    >
-      {props.children}
-    </button>
   );
 }
 

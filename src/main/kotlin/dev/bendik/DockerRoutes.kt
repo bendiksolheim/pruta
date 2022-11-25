@@ -88,6 +88,15 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
             )
         }
 
+        delete("/api/containers/{id}") {
+            val id = call.parameters["id"] as String
+            val removed = Either.catch { dockerClient.removeContainerCmd(id).exec() }
+            removed.fold(
+                { call.respond(BadRequest) },
+                { call.respond(NoContent) }
+            )
+        }
+
         get("/api/networks") {
             val networks = Either.catch { dockerClient.listNetworksCmd().exec() }
             networks.fold(
