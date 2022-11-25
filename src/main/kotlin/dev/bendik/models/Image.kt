@@ -31,7 +31,4 @@ fun extractReposAndTags(repoTags: Array<String>?): List<Pair<String, String>>? =
         }
     }?.filterNonNullPairs()
 
-val repoRegex = Regex("""^(?<repo>.*)@.*""")
-val tagRegex = Regex(""".*:(?<tag>.*)""")
-
 val repoAndTagRegex = Regex("""(?<repo>.*):(?<tag>.*)""")
