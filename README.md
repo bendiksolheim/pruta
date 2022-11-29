@@ -1,6 +1,6 @@
 # pruta
 
-A simple web interface for Docker to expose Docker status.
+A simple web interface for Docker
 
 ## Usage
 
@@ -27,6 +27,14 @@ The backend connects to Docker through `/var/run/docker.sock` by default. If thi
 `npm run dev`
 
 Open browser at http://localhost:5173
+
+## Create release
+
+- Go to [Releases](https://github.com/bendiksolheim/pruta/releases)
+- Click `Draft a new release`
+- Create a new tag on the format "vX.Y.Z"
+- Click `Generate release notes`
+- Click `Publish release`
 
 ## Create TCP socket
 
