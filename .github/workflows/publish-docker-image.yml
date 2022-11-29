@@ -19,13 +19,12 @@ jobs:
       - id: get-version
         run: |
           version=$(echo ${{github.ref_name}} | cut -dv -f2)
-          GITHUB_OUTPUT=$GITHUB_OUTPUT:"version=$version"
-          echo $GITHUB_OUTPUT
+          echo "VERSION=$version" >> $GITHUB_OUTPUT
 
       - uses: gradle/gradle-build-action@v2
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-          VERSION: ${{ steps.get-version.output.version }}
+          VERSION: ${{ steps.get-version.outputs.VERSION }}
         with:
           arguments: dockerPushImage
