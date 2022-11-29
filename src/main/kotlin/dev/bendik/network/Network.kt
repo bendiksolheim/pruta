@@ -1,4 +1,4 @@
-package dev.bendik.models
+package dev.bendik.network
 
 import kotlinx.serialization.Serializable
 

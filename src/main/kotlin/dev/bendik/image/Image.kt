@@ -1,4 +1,4 @@
-package dev.bendik.models
+package dev.bendik.image
 
 import dev.bendik.util.filterNonNullPairs
 import kotlinx.serialization.Serializable

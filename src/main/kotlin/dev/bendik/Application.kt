@@ -4,6 +4,9 @@ import io.ktor.server.application.*
 import dev.bendik.plugins.*
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientBuilder
+import dev.bendik.container.containerRoutes
+import dev.bendik.image.imageRoutes
+import dev.bendik.network.networkRoutes
 import dev.bendik.plugins.configureHTTP
 import dev.bendik.plugins.configureMonitoring
 import dev.bendik.plugins.configureRouting
@@ -30,8 +33,11 @@ fun Application.module() {
     val dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build()
     this.log.info("Docker version: {}", dockerClient.versionCmd().exec())
 
-    dockerRoutes(dockerClient)
     routing {
+        containerRoutes(dockerClient)
+        imageRoutes(dockerClient)
+        networkRoutes(dockerClient)
+
         singlePageApplication {
             useResources = true
             filesPath = "www"

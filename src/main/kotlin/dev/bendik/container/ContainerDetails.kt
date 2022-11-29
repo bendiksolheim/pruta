@@ -1,4 +1,4 @@
-package dev.bendik.models
+package dev.bendik.container
 
 import com.github.dockerjava.api.command.InspectContainerResponse
 import kotlinx.serialization.Serializable
