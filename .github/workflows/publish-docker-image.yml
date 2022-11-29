@@ -1,23 +1,31 @@
 name: Publish Docker Image on main
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
           java-version: 11
           distribution: 'temurin'
           cache: gradle
+
+      - id: get-version
+        run: |
+          version=$(echo ${{github.ref_name}} | cut -d- -f2)
+          GITHUB_OUTPUT=$GITHUB_OUTPUT:"version=$version"
+          echo $GITHUB_OUTPUT
+
       - uses: gradle/gradle-build-action@v2
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-          VERSION: ${{ github.run_number }}
+          VERSION: ${{ steps.get-version.output.version }}
         with:
           arguments: dockerPushImage
