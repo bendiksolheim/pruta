@@ -19,6 +19,8 @@ import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.server.application.application
+import io.ktor.server.application.log
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
 import java.util.concurrent.TimeUnit
@@ -51,9 +53,13 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
 
         delete("/api/images/{id}") {
             val id = call.parameters["id"] as String
-            val deleted = Either.catch { dockerClient.removeImageCmd(id).exec() }
+            val deleted = Either
+                .catch { dockerClient.removeImageCmd(id).exec() }
+                .mapLeft { t ->
+                    t.message ?: "Unknown error occured"
+                }
             deleted.fold(
-                { call.respond(BadRequest) },
+                { call.respond(BadRequest, it) },
                 { call.respond(NoContent) }
             )
         }
@@ -91,8 +97,9 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
         delete("/api/containers/{id}") {
             val id = call.parameters["id"] as String
             val removed = Either.catch { dockerClient.removeContainerCmd(id).exec() }
+                .mapLeft { t -> t.message ?: "Unknown error occured" }
             removed.fold(
-                { call.respond(BadRequest) },
+                { call.respond(BadRequest, it) },
                 { call.respond(NoContent) }
             )
         }
@@ -100,7 +107,7 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
         get("/api/networks") {
             val networks = Either.catch { dockerClient.listNetworksCmd().exec() }
             networks.fold(
-                { t -> call.respond(InternalServerError, t)},
+                { t -> call.respond(InternalServerError, t) },
                 { networks -> call.respond(networks.map { Network.from(it) }) }
             )
         }
@@ -109,14 +116,14 @@ fun Application.dockerRoutes(dockerClient: DockerClient) {
             val id = call.parameters["id"] as String
             val result = Either.catch { dockerClient.stopContainerCmd(id).exec() }
 
-            result.fold( { call.respond(InternalServerError) }, { call.respond(OK) })
+            result.fold({ call.respond(InternalServerError) }, { call.respond(OK) })
         }
 
         post("/api/containers/{id}/start") {
             val id = call.parameters["id"] as String
             val result = Either.catch { dockerClient.startContainerCmd(id).exec() }
 
-            result.fold( { call.respond(InternalServerError) }, { call.respond(OK)})
+            result.fold({ call.respond(InternalServerError) }, { call.respond(OK) })
         }
     }
 }
